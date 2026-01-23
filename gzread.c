@@ -33,7 +33,11 @@ local int gz_load(gz_statep state, unsigned char *buf, unsigned len,
         *have += (unsigned)ret;
     } while (*have < len);
     if (ret < 0) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        if (errno == EAGAIN
+#if !defined(_MSC_VER) || _MSC_VER >= 1600 // VS2010 or later
+            || errno == EWOULDBLOCK
+#endif
+            ) {
             state->again = 1;
             if (*have != 0)
                 return 0;
